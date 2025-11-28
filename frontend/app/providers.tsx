@@ -5,8 +5,7 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { celo, celoAlfajores } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected } from "@wagmi/connectors";
-import { walletConnect } from "@wagmi/connectors";
+import { injected, walletConnect } from "@wagmi/connectors";
 
 // If you want WalletConnect/Coinbase later, add them back and install their SDKs.
 
@@ -28,7 +27,7 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

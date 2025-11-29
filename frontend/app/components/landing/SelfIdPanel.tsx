@@ -50,7 +50,10 @@ export function SelfIdPanel({
             onClick={isLinked ? unlinkSelfId : linkSelfId}
             disabled={isLinking}
           >
-            {isLinking ? "Linking…" : isLinked ? "Disconnect SelfID" : "Link with Self"}
+            {(() => {
+              if (isLinking) return "Linking…";
+              return isLinked ? "Disconnect SelfID" : "Link with Self";
+            })()}
           </button>
           {!isConnected && <SecondaryHint text="Connect your wallet to sign with Self" />}
           {isConnected && !onSupportedChain && (

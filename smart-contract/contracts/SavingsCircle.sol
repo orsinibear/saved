@@ -42,12 +42,14 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
     event Joined(address indexed member);
     event Contributed(address indexed member, uint256 indexed cycle, uint256 amount);
     event Payout(address indexed to, uint256 indexed cycle, uint256 amount);
+    event PayoutShortfall(uint256 expectedAmount, uint256 actualAmount);
     event Missed(address indexed member, uint256 indexed cycle);
     event ReputationUpdated(address indexed member, int256 delta, int256 newScore);
 
     error NotMember();
     error AlreadyMember();
     error InvalidParams();
+    error NothingToPayout();
     error NoRequest();
     error AlreadyRequested();
 
@@ -135,9 +137,18 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
         require(memberIdx1Based > 0 && memberIdx1Based <= members.length, "Invalid payout index");
         address recipient = members[memberIdx1Based - 1];
 
-        uint256 amount = contributionAmount * members.length;
-        require(cUSD.transfer(recipient, amount), "Payout transfer failed");
-        emit Payout(recipient, currentCycle, amount);
+        uint256 expectedAmount = contributionAmount * members.length;
+        uint256 contractBalance = cUSD.balanceOf(address(this));
+        uint256 payoutAmount = expectedAmount;
+
+        if (contractBalance < expectedAmount) {
+            payoutAmount = contractBalance;
+            emit PayoutShortfall(expectedAmount, contractBalance);
+            if (payoutAmount == 0) revert NothingToPayout();
+        }
+
+        require(cUSD.transfer(recipient, payoutAmount), "Payout transfer failed");
+        emit Payout(recipient, currentCycle, payoutAmount);
 
         // Progress cycle
         currentCycle += 1;

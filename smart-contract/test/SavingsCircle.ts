@@ -54,7 +54,8 @@ describe("SavingsCircle", async () => {
     });
 
     assert.equal(await circle.read.membersCount(), 1n);
-    assert.equal(await circle.read.members([0n]), memberA.account.address);
+    const storedMember = await circle.read.members([0n]);
+    assert.equal(storedMember.toLowerCase(), memberA.account.address.toLowerCase());
     const attestation = await circle.read.membershipAttestations([memberA.account.address]);
     assert.equal(attestation, attestationRef);
   });

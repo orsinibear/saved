@@ -3,7 +3,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { injected, walletConnect } from "@wagmi/connectors";
 import { useState } from "react";
@@ -16,13 +16,12 @@ if (!projectId) {
 
 // Explicit connector list without Base smart account
 const config = createConfig({
-  chains: [celoAlfajores, celo],
+  chains: [celo],
   connectors: [
     injected({ shimDisconnect: true }),
     walletConnect({ projectId, showQrModal: true }),
   ],
   transports: {
-    [celoAlfajores.id]: http(process.env.NEXT_PUBLIC_ALFAJORES_RPC_URL),
     [celo.id]: http(process.env.NEXT_PUBLIC_CELO_RPC_URL),
   },
 });

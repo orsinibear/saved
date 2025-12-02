@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { parseUnits } from "viem";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { decodeEventLog, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 import { FACTORY_ADDRESS } from "./config";
-import { factoryAbi } from "./abi";
+import { circleCreatedEvent, factoryAbi } from "./abi";
+import { saveCircleLabel } from "./circleRegistry";
 
 const SECONDS_PER_DAY = 86_400;
 
@@ -18,6 +19,8 @@ const defaultFormState = {
 };
 
 type FormState = typeof defaultFormState;
+type FieldErrors = Partial<Record<keyof FormState, string>>;
+type Toast = { id: string; message: string; variant: "success" | "error" };
 
 export function CreateCircleDialog({
   open,
@@ -30,7 +33,10 @@ export function CreateCircleDialog({
 }) {
   const { isConnected } = useAccount();
   const [form, setForm] = useState<FormState>(defaultFormState);
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const pendingLabelRef = useRef<string>("");
 
   const {
     writeContract,
@@ -38,16 +44,50 @@ export function CreateCircleDialog({
     isPending,
     error: writeError,
   } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: txSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+  const {
+    data: receipt,
+    isLoading: isConfirming,
+    isSuccess: txSuccess,
+  } = useWaitForTransactionReceipt({ hash: txHash });
+
+  const pushToast = useCallback((message: string, variant: Toast["variant"]) => {
+    const id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${variant}-${Date.now()}`;
+    setToasts((prev) => [...prev, { id, message, variant }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 5000);
+  }, []);
+
+  useEffect(() => {
+    if (writeError) {
+      pushToast(writeError.message || "Transaction failed", "error");
+    }
+  }, [writeError, pushToast]);
 
   useEffect(() => {
     if (txSuccess) {
+      if (receipt) {
+        for (const log of receipt.logs) {
+          try {
+            const decoded = decodeEventLog({ abi: [circleCreatedEvent], data: log.data, topics: log.topics });
+            if (decoded.eventName === "CircleCreated") {
+              const circleAddress = decoded.args.circle as string;
+              const label = pendingLabelRef.current || form.name || `Circle ${Date.now()}`;
+              saveCircleLabel(circleAddress, label);
+            }
+          } catch {
+            // ignore non-matching logs
+          }
+        }
+      }
       setForm(defaultFormState);
-      setError(null);
+      setFieldErrors({});
+      setFormError(null);
+      pushToast("Circle deployed successfully", "success");
       onCreated?.();
       onClose();
     }
-  }, [txSuccess, onClose, onCreated]);
+  }, [txSuccess, receipt, form.name, onClose, onCreated, pushToast]);
 
   const isBusy = isPending || isConfirming;
 
@@ -77,26 +117,30 @@ export function CreateCircleDialog({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
+    setFormError(null);
+    setFieldErrors({});
 
     if (!isConnected) {
-      setError("Connect your wallet to deploy a circle.");
+      setFormError("Connect your wallet to deploy a circle.");
       return;
+    }
+
+    const errors: FieldErrors = {};
+
+    if (!form.name.trim()) {
+      errors.name = "Circle label is required.";
     }
 
     if (parsedContribution <= 0) {
-      setError("Contribution must be greater than zero.");
-      return;
+      errors.contribution = "Contribution must be greater than zero.";
     }
 
     if (parsedCycleDays <= 0) {
-      setError("Cycle length must be at least 1 day.");
-      return;
+      errors.cycleLengthDays = "Cycle must be at least 1 day.";
     }
 
     if (!Number.isInteger(parsedMaxMembers) || parsedMaxMembers <= 1) {
-      setError("Max members must be at least 2.");
-      return;
+      errors.maxMembers = "Need at least two members.";
     }
 
     const payoutTokens = form.payoutOrder.trim().length > 0
@@ -106,9 +150,15 @@ export function CreateCircleDialog({
     const payoutOrderArray = payoutTokens.filter((value) => Number.isInteger(value) && value > 0).slice(0, parsedMaxMembers);
 
     if (payoutOrderArray.length !== parsedMaxMembers) {
-      setError("Payout order must list each member exactly once.");
+      errors.payoutOrder = "List every member position exactly once.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
+
+    pendingLabelRef.current = form.name.trim();
 
     const payoutOrderBigInt = payoutOrderArray.map((value) => BigInt(value));
 
@@ -125,7 +175,9 @@ export function CreateCircleDialog({
         ],
       });
     } catch (contractError) {
-      setError((contractError as Error).message);
+      const message = (contractError as Error).message;
+      setFormError(message);
+      pushToast(message, "error");
     }
   };
 
@@ -135,6 +187,18 @@ export function CreateCircleDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 py-10">
+      {toasts.length > 0 && (
+        <div className="pointer-events-none absolute right-6 top-6 space-y-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`rounded-2xl px-4 py-3 text-sm shadow-lg ${toast.variant === "success" ? "bg-emerald-500/90 text-emerald-950" : "bg-rose-500/90 text-rose-950"}`}
+            >
+              {toast.message}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-slate-900/95 p-8 text-white shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
@@ -163,6 +227,7 @@ export function CreateCircleDialog({
               className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
               disabled={isBusy}
             />
+            {fieldErrors.name && <p className="mt-1 text-xs text-rose-300">{fieldErrors.name}</p>}
           </label>
 
           <div className="grid gap-4 md:grid-cols-3">
@@ -177,6 +242,7 @@ export function CreateCircleDialog({
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
                 disabled={isBusy}
               />
+              {fieldErrors.contribution && <p className="mt-1 text-xs text-rose-300">{fieldErrors.contribution}</p>}
             </label>
 
             <label className="text-sm">
@@ -189,6 +255,7 @@ export function CreateCircleDialog({
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
                 disabled={isBusy}
               />
+              {fieldErrors.cycleLengthDays && <p className="mt-1 text-xs text-rose-300">{fieldErrors.cycleLengthDays}</p>}
             </label>
 
             <label className="text-sm">
@@ -201,6 +268,7 @@ export function CreateCircleDialog({
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
                 disabled={isBusy}
               />
+              {fieldErrors.maxMembers && <p className="mt-1 text-xs text-rose-300">{fieldErrors.maxMembers}</p>}
             </label>
           </div>
 
@@ -214,6 +282,7 @@ export function CreateCircleDialog({
               className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
               disabled={isBusy}
             />
+            {fieldErrors.payoutOrder && <p className="mt-1 text-xs text-rose-300">{fieldErrors.payoutOrder}</p>}
           </label>
 
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm text-slate-300">
@@ -221,8 +290,7 @@ export function CreateCircleDialog({
             <p className="mt-1 text-slate-400">{payoutPreview}</p>
           </div>
 
-          {error && <p className="text-sm text-rose-300">{error}</p>}
-          {writeError && <p className="text-sm text-rose-300">{writeError.message}</p>}
+          {formError && <p className="text-sm text-rose-300">{formError}</p>}
 
           <button
             type="submit"

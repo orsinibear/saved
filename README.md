@@ -69,10 +69,10 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
   - Functions:
     - [x] `constructor(params)`
     - [x] `joinCircle(selfIdRef)` with membership gating
-    - [x] `attestMembership(selfIdRefHash)` (creator-only) [MVP: event log + off-chain Self attestation]
+    - [x] `attestMembership(address account, bytes32 attestationRef)` (creator-only) [MVP: event log + off-chain Self attestation]
     - [x] `contribute()` pulls cUSD (after user approve), marks `paid`
     - [x] `triggerPayout()` checks due member and transfers pooled cUSD; incentive to caller
-    - [x] `skipMissedContribution(member)` marks missed after grace window
+    - [x] `skipMissedContribution(member)` marks missed contribution (owner-only)
     - [x] `updateReputation(member, delta)` internal hooks
     - [x] `getStatus()` view for UI
   - Events:

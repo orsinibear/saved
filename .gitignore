@@ -8,3 +8,4 @@ smart-contract/node_modules
 **/.next
 **/artifacts
 */cache
+.env

@@ -22,10 +22,6 @@ console.log("Deployer:", deployer.account.address);
 
 const factory = await viem.deployContract("SavingsCircleFactory", [checksummedCusd]);
 
-if (factory.deploymentTransactionHash) {
-  console.log("Deployment tx:", factory.deploymentTransactionHash);
-}
-
 console.log("Factory deployed to:", factory.address);
 
 console.log("\nNext steps:");

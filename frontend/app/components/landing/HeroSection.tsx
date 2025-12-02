@@ -1,6 +1,6 @@
 "use client";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { AppKitButton } from "@reown/appkit/react";
 import { motion } from "framer-motion";
 import { Sparkles, Zap } from "lucide-react";
 
@@ -24,7 +24,7 @@ export function HeroSection({
             Trust-first group savings for every community on Celo
           </h1>
         </div>
-        <ConnectButton />
+        <AppKitButton />
       </div>
 
       <div className="grid gap-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl lg:grid-cols-[1.1fr_0.9fr]">

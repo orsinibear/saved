@@ -20,18 +20,14 @@ const [deployer] = await viem.getWalletClients();
 
 console.log("Deployer:", deployer.account.address);
 
-const factory = await viem.deployContract("SavingsCircleFactory", [checksummedCusd], {
-  account: deployer.account,
-});
+const factory = await viem.deployContract("SavingsCircleFactory", [checksummedCusd]);
 
-const receipt = await factory.deploymentTransaction();
-if (receipt) {
-  console.log("Deployment tx:", receipt.hash);
+if (factory.deploymentTransactionHash) {
+  console.log("Deployment tx:", factory.deploymentTransactionHash);
 }
 
-const factoryAddress = await factory.getAddress();
-console.log("Factory deployed to:", factoryAddress);
+console.log("Factory deployed to:", factory.address);
 
 console.log("\nNext steps:");
-console.log("1. Add", factoryAddress, "to NEXT_PUBLIC_FACTORY_ADDRESS in the frontend env.");
+console.log("1. Add", factory.address, "to NEXT_PUBLIC_FACTORY_ADDRESS in the frontend env.");
 console.log("2. (Optional) Call createCircle via Hardhat console to seed initial circles.\n");

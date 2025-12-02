@@ -34,11 +34,12 @@ export default defineConfig({
       url: configVariable("SEPOLIA_RPC_URL"),
       accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
     },
-    alfajores: {
+    celo: {
       type: "http",
       chainType: "l1",
-      url: configVariable("ALFAJORES_RPC_URL"),
-      accounts: [configVariable("ALFAJORES_PRIVATE_KEY")],
+      url: configVariable("CELO_MAINNET_RPC_URL"),
+      accounts: [configVariable("CELO_MAINNET_PRIVATE_KEY")],
+      chainId: 42220,
     },
   },
 });

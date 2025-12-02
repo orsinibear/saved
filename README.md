@@ -50,15 +50,15 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
   - Preview web deploys (Vercel/Netlify)
 - [ ] Add environment management (`.env.local`, `.env.example`).
 
-### Contracts (packages/contracts)
+-### Contracts (packages/contracts)
 - [x] Dependencies: `hardhat`, `@openzeppelin/contracts`, `dotenv`, `viem`, `typescript`.
 - [x] Interfaces:
   - [x] `IERC20` for cUSD
-- [ ] SavingsCircleFactory.sol
+- [x] SavingsCircleFactory.sol
   - [x] `createCircle(params)` deploys new `SavingsCircle`
   - [x] Emit `CircleCreated(circle, creator, params)`
   - [x] Registry mapping for discoverability
-- [ ] SavingsCircle.sol
+- [x] SavingsCircle.sol
   - State:
     - [x] `address[] members`, `mapping(address => uint256) memberIndex`
     - [x] `mapping(uint256 => mapping(address => bool)) paid`
@@ -69,10 +69,10 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
   - Functions:
     - [x] `constructor(params)`
     - [x] `joinCircle(selfIdRef)` with membership gating
-    - [x] `attestMembership(selfIdRefHash)` (creator-only) [MVP: event log + off-chain Self attestation]
+    - [x] `attestMembership(address account, bytes32 attestationRef)` (creator-only) [MVP: event log + off-chain Self attestation]
     - [x] `contribute()` pulls cUSD (after user approve), marks `paid`
     - [x] `triggerPayout()` checks due member and transfers pooled cUSD; incentive to caller
-    - [x] `skipMissedContribution(member)` marks missed after grace window
+    - [x] `skipMissedContribution(member)` marks missed contribution (owner-only)
     - [x] `updateReputation(member, delta)` internal hooks
     - [x] `getStatus()` view for UI
   - Events:
@@ -85,9 +85,9 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
   - [ ] Contribution flows (happy path + missed)
   - [ ] Payout correctness across cycles
   - [ ] Reputation updates & events
-- [ ] Deploy scripts:
-  - [ ] Deploy Factory → record address/ABI to `apps/web`
-  - [ ] Configure Alfajores RPC, broadcaster key via env
+- [x] Deploy scripts:
+  - [x] Deploy Factory → record address/ABI to `apps/web`
+  - [x] Configure Alfajores RPC, broadcaster key via env
 
 ### Self Protocol Integration
 - [ ] JS SDK in web: create/link SelfID, fetch identity metadata
@@ -100,24 +100,26 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
   - [ ] Initiate recovery request, member approvals via Self attestations, wallet update after threshold
 
 ### Frontend (apps/web)
-- [ ] Stack & Setup:
-  - [ ] Next.js, Tailwind, RainbowKit/WalletConnect, Wagmi/viem (Celo chain config)
-  - [ ] Env: RPC URL, contract addresses, cUSD address, Self endpoints
+- [x] Stack & Setup:
+  - [x] Next.js, Tailwind, RainbowKit/WalletConnect, Wagmi/viem (Celo chain config)
+  - [x] Env: RPC URL, contract addresses, cUSD address, Self endpoints
 - [ ] Core Pages/Flows:
-  - [ ] Onboarding: connect wallet, link/create SelfID
-  - [ ] Dashboard: my circles, actions, reputation summary
+  - [x] Onboarding: connect wallet, link/create SelfID (mock hook)
+  - [x] Dashboard: my circles, actions, reputation summary (wired to mainnet data)
   - [ ] Create Circle: params form, deploy via Factory
   - [ ] Circle Detail: members, schedule, contribution status, trigger payout, history
   - [ ] Profile: SelfID info, reputation, attestations
 - [ ] Components:
-  - [ ] CircleCard, ContributionStatusTable, PayoutSchedule, ReputationBadge, AttestationStatus
+  - [x] Circle cards, summary grid, contribution table, activity timeline
+  - [ ] PayoutSchedule, ReputationBadge, AttestationStatus
 - [ ] Web3 Hooks:
+  - [x] `useCirclesData()` loads factory + circle status/events
   - [ ] `useContracts()` (factory, circle), `useCircleStatus()`, `useContribute()`, `useTriggerPayout()`
-- [ ] State & Data:
-  - [ ] Store contract addresses/ABIs
-  - [ ] Index events (client or lightweight backendless approach)
+- [x] State & Data:
+  - [x] Store contract addresses/ABIs via env + viem parse
+  - [x] Index events (client or lightweight backendless approach)
 - [ ] UX:
-  - [ ] Clear due status, countdown to next cycle, one-click contribute, confirmations, error toasts
+  - [x] Clear due status, countdown to next cycle, one-click contribute, confirmations, error toasts (dashboard polish)
   - [ ] Mobile-first layout, PWA meta (v1.1)
 
 ### Analytics, Telemetry, and Logs

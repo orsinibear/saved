@@ -11,64 +11,32 @@ import {
   ContributionTable,
   SummaryGrid,
   type ActivityItem,
-  type CircleSnapshot,
   type ContributionEntry,
   type SummaryMetric,
 } from "./components";
+import { useCirclesData } from "./useCirclesData";
 
-const summaryMetrics: SummaryMetric[] = [
-  { label: "Total value rotating", value: "18,450 cUSD", delta: "+12% vs last cycle" },
+const summarySkeleton: SummaryMetric[] = [
+  { label: "Total value rotating", value: "…", delta: "" },
   { label: "Reputation score", value: "82", caption: "Aggregated Self attestations" },
   { label: "On-time streak", value: "11 cycles", caption: "Past 90 days" },
-];
-
-const mockCircles: CircleSnapshot[] = [
-  {
-    id: "1",
-    name: "Market Queens",
-    contribution: "75 cUSD / wk",
-    members: 8,
-    phase: "Contribution",
-    progress: 72,
-    nextPayout: "Ama • Thu",
-  },
-  {
-    id: "2",
-    name: "Diaspora Connect",
-    contribution: "120 cUSD / mo",
-    members: 12,
-    phase: "Payout",
-    progress: 100,
-    nextPayout: "Kweku • Today",
-  },
-  {
-    id: "3",
-    name: "Campus Builders",
-    contribution: "40 cUSD / wk",
-    members: 6,
-    phase: "Grace",
-    progress: 54,
-    nextPayout: "Ada • Mon",
-  },
-];
-
-const activityFeed: ActivityItem[] = [
-  { title: "Ama contributed 75 cUSD", subtitle: "Market Queens • Cycle 4", timestamp: "2m ago", accent: "#22d3ee" },
-  { title: "Missed payment flagged", subtitle: "Campus Builders • Ada", timestamp: "14m ago", accent: "#facc15" },
-  { title: "Payout triggered", subtitle: "Diaspora Connect • Kweku", timestamp: "1h ago", accent: "#34d399" },
-];
-
-const contributionRows: ContributionEntry[] = [
-  { member: "Ama", circle: "Market Queens", cycle: "4", amount: "75 cUSD", status: "On time" },
-  { member: "Ada", circle: "Campus Builders", cycle: "3", amount: "40 cUSD", status: "Pending" },
-  { member: "Gbenga", circle: "Diaspora Connect", cycle: "8", amount: "120 cUSD", status: "On time" },
-  { member: "Ngozi", circle: "Market Queens", cycle: "4", amount: "75 cUSD", status: "Missed" },
 ];
 
 export default function DashboardPage() {
   const { isConnected } = useAccount();
   const chainId = useChainId();
   const onCeloMainnet = typeof chainId === "number" && chainId === celo.id;
+  const { circles, aggregate, activities, contributions, isLoading, isError, refetch } = useCirclesData();
+
+  const summaryMetrics: SummaryMetric[] = [
+    {
+      label: "Total value rotating",
+      value: `${aggregate.headlineValue.toLocaleString()} cUSD`,
+      delta: aggregate.totalCircles ? `${aggregate.totalCircles} circles live` : undefined,
+    },
+    summarySkeleton[1],
+    summarySkeleton[2],
+  ];
 
   if (!isConnected || !onCeloMainnet) {
     return (
@@ -83,6 +51,8 @@ export default function DashboardPage() {
       </main>
     );
   }
+
+  const showContent = !isLoading && !isError && circles.length > 0;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white lg:px-10">
@@ -100,11 +70,35 @@ export default function DashboardPage() {
 
         <SummaryGrid metrics={summaryMetrics} />
 
-        <CircleBoard circles={mockCircles} />
+        {isLoading && (
+          <div className="rounded-3xl border border-white/10 bg-slate-900/40 p-10 text-center text-slate-300">
+            <p className="text-lg font-medium">Fetching your circles…</p>
+            <p className="mt-2 text-sm text-slate-500">Were reading data from the deployed factory.</p>
+          </div>
+        )}
+
+        {isError && (
+          <div className="rounded-3xl border border-rose-400/40 bg-rose-500/10 p-6 text-sm text-rose-100">
+            <p className="font-semibold">Unable to load circles</p>
+            <p className="mt-1 text-rose-200/80">Please ensure the factory address env var is set, then try again.</p>
+            <button className="mt-3 rounded-full border border-rose-200/40 px-4 py-1 text-xs font-semibold" onClick={() => refetch()}>
+              Retry
+            </button>
+          </div>
+        )}
+
+        {showContent && <CircleBoard circles={circles} />}
+
+        {!isLoading && !isError && circles.length === 0 && (
+          <div className="rounded-3xl border border-white/10 bg-slate-900/40 p-10 text-center text-slate-300">
+            <p className="text-lg font-medium">No circles found yet</p>
+            <p className="mt-2 text-sm text-slate-500">Use the create flow to spin up your first savings circle.</p>
+          </div>
+        )}
 
         <section className="grid gap-6 lg:grid-cols-[0.6fr_0.4fr]">
-          <ContributionTable rows={contributionRows} />
-          <ActivityTimeline items={activityFeed} />
+          <ContributionTable rows={contributions as ContributionEntry[]} />
+          <ActivityTimeline items={activities as ActivityItem[]} />
         </section>
       </div>
     </main>

@@ -17,13 +17,26 @@ export default function Home() {
   const chainId = useChainId();
   const router = useRouter();
   const onSupportedChain = typeof chainId === "number" && chainId === celo.id;
+  const shouldRedirect = isConnected && onSupportedChain;
 
   // Redirect to dashboard if wallet is connected and on supported chain
   useEffect(() => {
-    if (isConnected && onSupportedChain) {
+    if (shouldRedirect) {
       router.push("/dashboard");
     }
-  }, [isConnected, onSupportedChain, router]);
+  }, [shouldRedirect, router]);
+
+  // Show loading state while redirecting
+  if (shouldRedirect) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        <div className="text-center">
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-400 mx-auto" />
+          <p className="text-sm text-slate-400">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">

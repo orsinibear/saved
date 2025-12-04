@@ -4,8 +4,14 @@ import { AppKitButton } from "@reown/appkit/react";
 import { motion } from "framer-motion";
 import { Zap } from "lucide-react";
 import Link from "next/link";
+import { useAccount, useChainId } from "wagmi";
+import { celo } from "wagmi/chains";
 
 export function Navbar() {
+  const { isConnected } = useAccount();
+  const chainId = useChainId();
+  const onSupportedChain = typeof chainId === "number" && chainId === celo.id;
+
   return (
     <motion.nav
       className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-md"
@@ -31,6 +37,11 @@ export function Navbar() {
           <a href="#faq" className="text-sm text-slate-300 transition hover:text-white">
             FAQ
           </a>
+          {isConnected && onSupportedChain && (
+            <Link href="/dashboard" className="text-sm text-cyan-300 transition hover:text-cyan-200 font-semibold">
+              Dashboard
+            </Link>
+          )}
         </div>
 
         <AppKitButton />

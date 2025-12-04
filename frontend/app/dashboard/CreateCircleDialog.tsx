@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { decodeEventLog, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 import { FACTORY_ADDRESS } from "./config";
 import { circleCreatedEvent, factoryAbi } from "./abi";
 import { saveCircleLabel } from "./circleRegistry";
+import { useSelfId } from "@/app/hooks/useSelfId";
 
 const SECONDS_PER_DAY = 86_400;
 
@@ -32,11 +34,22 @@ export function CreateCircleDialog({
   onCreated?: () => void;
 }) {
   const { isConnected } = useAccount();
+  const {
+    isLinked,
+    reputationScore,
+    attestations,
+    verificationData,
+    linkSelfId,
+    isLinking,
+    isSubmittingOnchain,
+  } = useSelfId();
   const [form, setForm] = useState<FormState>(defaultFormState);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [toasts, setToasts] = useState<Toast[]>([]);
   const pendingLabelRef = useRef<string>("");
+
+  const isVerified = isLinked && Boolean(verificationData);
 
   const {
     writeContract,
@@ -135,6 +148,12 @@ export function CreateCircleDialog({
       errors.contribution = "Contribution must be greater than zero.";
     }
 
+    // Require Self Protocol verification for contributions above 10 cUSD
+    if (parsedContribution > 10 && !isVerified) {
+      setFormError("Self Protocol verification required for contributions above 10 cUSD.");
+      return;
+    }
+
     if (parsedCycleDays <= 0) {
       errors.cycleLengthDays = "Cycle must be at least 1 day.";
     }
@@ -217,6 +236,41 @@ export function CreateCircleDialog({
         </div>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          {/* Self Protocol Verification Status */}
+          {parsedContribution > 10 && (
+            <div className={`rounded-2xl border p-4 ${isVerified ? "border-emerald-500/30 bg-emerald-500/10" : "border-amber-500/30 bg-amber-500/10"}`}>
+              <div className="flex items-center gap-3">
+                {isVerified ? (
+                  <>
+                    <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-200">Verified with Self Protocol</p>
+                      <p className="text-xs text-emerald-300/80">Reputation {reputationScore} · Attestations {attestations}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="h-5 w-5 text-amber-400" />
+                    <div>
+                      <p className="text-sm font-semibold text-amber-200">Verification required</p>
+                      <p className="text-xs text-amber-300/80">Link your Self ID before creating circles above 10 cUSD</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {!isVerified && (
+                <button
+                  type="button"
+                  onClick={linkSelfId}
+                  className="mt-3 w-full rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950 transition hover:bg-amber-400"
+                  disabled={isLinking || isSubmittingOnchain || !isConnected}
+                >
+                  {isLinking ? "Launching Self" : "Verify with Self Protocol"}
+                </button>
+              )}
+            </div>
+          )}
+
           <label className="block text-sm">
             <span className="text-slate-300">Circle label (for your dashboard)</span>
             <input

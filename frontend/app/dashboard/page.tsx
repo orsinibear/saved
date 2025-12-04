@@ -7,6 +7,8 @@ import { celo } from "wagmi/chains";
 import { motion } from "framer-motion";
 import { AppKitButton } from "@reown/appkit/react";
 import { Zap, LogOut } from "lucide-react";
+import { useSelfId } from "@/app/hooks/useSelfId";
+import { SelfVerification } from "@/app/components/self/SelfVerification";
 
 import {
   ActionButton,
@@ -33,6 +35,21 @@ export default function DashboardPage() {
   const onCeloMainnet = typeof chainId === "number" && chainId === celo.id;
   const { circles, aggregate, activities, contributions, isLoading, isError, refetch } = useCirclesData();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const {
+    isLinked,
+    handle,
+    reputationScore,
+    attestations,
+    showVerification,
+    setShowVerification,
+    handleVerificationSuccess,
+    handleVerificationError,
+    isSubmittingOnchain,
+  } = useSelfId();
+
+  const verificationStatus = isLinked
+    ? `Verified as ${handle ?? "Self ID"}`
+    : "Self verification required for high-value circles";
 
   const summaryMetrics: SummaryMetric[] = [
     {
@@ -112,10 +129,23 @@ export default function DashboardPage() {
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-200">Command center</p>
               <h1 className="mt-2 text-4xl font-semibold">Your savings circles</h1>
               <p className="mt-2 text-sm text-slate-400">Create, manage, and track your group savings</p>
+              <p className={`mt-2 text-xs ${isLinked ? "text-emerald-300" : "text-amber-300"}`}>
+                {verificationStatus}
+                {isLinked && reputationScore !== undefined && (
+                  <span className="ml-2 text-xs text-emerald-200/80">
+                    Reputation {reputationScore} · Attestations {attestations}
+                  </span>
+                )}
+              </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <ActionButton label="Create circle" onClick={() => setShowCreateDialog(true)} />
               <ActionButton label="Invite member" />
+              <ActionButton
+                label={isLinked ? "View verification" : "Verify with Self"}
+                onClick={() => setShowVerification(true)}
+                disabled={isSubmittingOnchain}
+              />
             </div>
           </motion.header>
 
@@ -157,6 +187,13 @@ export default function DashboardPage() {
           onClose={() => setShowCreateDialog(false)}
           onCreated={() => refetch()}
         />
+        {showVerification && (
+          <SelfVerification
+            onSuccess={handleVerificationSuccess}
+            onError={handleVerificationError}
+            onClose={() => setShowVerification(false)}
+          />
+        )}
       </main>
     </div>
   );

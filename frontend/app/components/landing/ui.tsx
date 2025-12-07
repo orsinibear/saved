@@ -8,7 +8,9 @@ import type { CirclePreview } from "./constants";
 
 export function PrimaryButton({ label }: { label: string }) {
   return (
-    <button className="group inline-flex items-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
+    <button
+      className="group inline-flex items-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_rgba(8,47,73,0.55)] transition hover:bg-cyan-300 hover:shadow-[0_22px_60px_rgba(8,47,73,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+    >
       {label}
       <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
     </button>
@@ -30,16 +32,18 @@ export function SectionHeading({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">{eyebrow}</p>
-      <h2 className="mt-2 text-3xl font-semibold text-white">{title}</h2>
-      <p className="mt-2 text-sm text-slate-300">{description}</p>
+      <p className="text-xs uppercase tracking-[0.3em] text-cyan-300/90">{eyebrow}</p>
+      <h2 className="mt-2 bg-gradient-to-r from-slate-50 via-cyan-100 to-emerald-100 bg-clip-text text-3xl font-semibold text-transparent sm:text-4xl">
+        {title}
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">{description}</p>
     </div>
   );
 }
 
 export function GradientStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex-1 rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+    <div className="flex-1 rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-[0_14px_40px_rgba(15,23,42,0.55)]">
       <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
       <p className="text-3xl font-semibold text-white">{value}</p>
     </div>
@@ -86,7 +90,7 @@ export function StatusPill({
 
 export function CircleCard({ circle, minimal = false }: { circle: CirclePreview; minimal?: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-[0_15px_60px_rgba(8,47,73,0.4)]">
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-[0_15px_60px_rgba(8,47,73,0.4)] transition hover:border-cyan-300/60 hover:bg-slate-900/80 hover:shadow-[0_20px_70px_rgba(8,47,73,0.8)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-lg font-semibold text-white">{circle.name}</p>
@@ -110,7 +114,7 @@ export function CircleCard({ circle, minimal = false }: { circle: CirclePreview;
           <p>
             Next payout <span className="text-white">{circle.nextPayout}</span>
           </p>
-          <button className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-wide text-cyan-200">
+          <button className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-wide text-cyan-200 transition hover:border-cyan-300 hover:text-cyan-100">
             Manage <ArrowRight className="h-3 w-3" />
           </button>
         </div>

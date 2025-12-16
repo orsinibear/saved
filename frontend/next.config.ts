@@ -4,12 +4,26 @@ const nextConfig = {
   
   // Configure webpack to handle module resolution issues
   webpack: (config, { isServer }) => {
-    // Ignore test files and other problematic modules
+    // Ignore test files and other problematic modules (warnings only)
     config.ignoreWarnings = [
       { module: /node_modules\/thread-stream/ },
       { module: /node_modules\/.*\/test\// },
       { module: /node_modules\/.*\/node_modules\/thread-stream/ },
     ];
+
+    // Completely ignore thread-stream test files so they are never bundled
+    config.module.rules.push({
+      test: /thread-stream[\\/](test|pkg)[\\/].*\.(js|mjs|ts|tsx)$/,
+      use: 'ignore-loader',
+    });
+
+    // Stub out tap/tape/why-is-node-running used only in those tests
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      tap: false,
+      tape: false,
+      'why-is-node-running': false,
+    };
 
     // Add fallbacks for Node.js core modules
     if (!isServer) {

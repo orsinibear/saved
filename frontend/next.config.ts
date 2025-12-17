@@ -1,9 +1,11 @@
+import type { Configuration } from 'webpack';
+
 const nextConfig = {
   // Disable React Strict Mode to avoid double rendering in development
-  reactStrictMode: false,
+  reactStrictMode: true,
   
   // Configure webpack to handle module resolution issues
-  webpack: (config, { isServer }) => {
+  webpack: (config: Configuration, { isServer }: { isServer: boolean }) => {
     // Ignore test files and other problematic modules (warnings only)
     config.ignoreWarnings = [
       { module: /node_modules\/thread-stream/ },
@@ -12,21 +14,31 @@ const nextConfig = {
     ];
 
     // Completely ignore thread-stream test files so they are never bundled
+    if (!config.module) {
+      config.module = { rules: [] };
+    }
     config.module.rules.push({
       test: /thread-stream[\\/](test|pkg)[\\/].*\.(js|mjs|ts|tsx)$/,
       use: 'ignore-loader',
     });
 
-    // Stub out tap/tape/why-is-node-running used only in those tests
+    // Stub out tap/tape/why-is-node-running/porto used only in those tests/connectors
+    if (!config.resolve) {
+      config.resolve = {};
+    }
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       tap: false,
       tape: false,
       'why-is-node-running': false,
+      porto: false,
     };
 
     // Add fallbacks for Node.js core modules
     if (!isServer) {
+      if (!config.resolve) {
+        config.resolve = {};
+      }
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
@@ -41,23 +53,8 @@ const nextConfig = {
     return config;
   },
   
-  // Disable Turbopack for now due to compatibility issues
-  experimental: {
-    turbo: false,
-  },
-  
   // Add support for static exports if needed
   output: 'standalone',
-  
-  // Configure TypeScript to ignore build errors for now
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  
-  // Configure ESLint to ignore during builds
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 };
 
 export default nextConfig;

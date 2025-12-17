@@ -14,6 +14,9 @@ const nextConfig = {
     ];
 
     // Completely ignore thread-stream test files so they are never bundled
+    if (!config.module) {
+      config.module = { rules: [] };
+    }
     config.module.rules.push({
       test: /thread-stream[\\/](test|pkg)[\\/].*\.(js|mjs|ts|tsx)$/,
       use: 'ignore-loader',

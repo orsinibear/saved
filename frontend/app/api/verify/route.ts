@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { SelfBackendVerifier, AllIds, DefaultConfigStore } from "@selfxyz/core";
 
-// Country codes are 3-letter ISO strings; we alias to string for typing here.
+// Country codes are 3-letter ISO strings
 type Country3LetterCode = string;
 
 // Reuse a single verifier instance
@@ -19,8 +19,8 @@ const selfBackendVerifier = new SelfBackendVerifier(
     minimumAge: parseInt(process.env.NEXT_PUBLIC_SELF_MIN_AGE || "18"),
     excludedCountries: (
       process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES
-        ? process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES.split(",") as Country3LetterCode[]
-        : ["IRN", "PRK", "RUS", "SYR"] as Country3LetterCode[]
+        ? process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES.split(",")
+        : ["IRN", "PRK", "RUS", "SYR"]
     ),
     ofac: process.env.NEXT_PUBLIC_SELF_OFAC !== "false",
   }),

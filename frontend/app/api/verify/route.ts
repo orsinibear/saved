@@ -19,9 +19,9 @@ const selfBackendVerifier = new SelfBackendVerifier(
     minimumAge: parseInt(process.env.NEXT_PUBLIC_SELF_MIN_AGE || "18"),
     excludedCountries: (
       process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES
-        ? process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES.split(",")
-        : ["IRN", "PRK", "RUS", "SYR"]
-    ) as Country3LetterCode[],
+        ? process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES.split(",") as Country3LetterCode[]
+        : ["IRN", "PRK", "RUS", "SYR"] as Country3LetterCode[]
+    ),
     ofac: process.env.NEXT_PUBLIC_SELF_OFAC !== "false",
   }),
   "hex" // userIdentifierType - must match frontend userIdType

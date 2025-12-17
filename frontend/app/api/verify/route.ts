@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { SelfBackendVerifier, AllIds, DefaultConfigStore } from "@selfxyz/core";
 
-// Country codes are 3-letter ISO strings (matching Self SDK's internal type)
-type Country3LetterCode = string;
+// Extract the Country3LetterCode type from DefaultConfigStore
+type ExtractCountryCode<T> = T extends { excludedCountries?: infer U } ? U : never;
+type Country3LetterCode = ExtractCountryCode<InstanceType<typeof DefaultConfigStore>["excludedCountries"]> extends (infer U)[] ? U : never;
 
 // Reuse a single verifier instance
 // Note: mockPassport: true = testnet/staging, false = mainnet
@@ -19,8 +20,8 @@ const selfBackendVerifier = new SelfBackendVerifier(
     minimumAge: parseInt(process.env.NEXT_PUBLIC_SELF_MIN_AGE || "18"),
     excludedCountries: (
       process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES
-        ? process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES.split(",").map(code => code.trim() as Country3LetterCode)
-        : ["IRN", "PRK", "RUS", "SYR"] as Country3LetterCode[]
+        ? process.env.NEXT_PUBLIC_SELF_EXCLUDED_COUNTRIES.split(",").map(code => code.trim())
+        : ["IRN", "PRK", "RUS", "SYR"]
     ),
     ofac: process.env.NEXT_PUBLIC_SELF_OFAC !== "false",
   }),

@@ -21,7 +21,7 @@ export function Footer() {
               <span className="text-lg font-bold text-white">Ajo</span>
             </div>
             <p className="mt-3 text-sm text-slate-400 max-w-xs">
-              Trust-first group savings for every community on Celo.
+              Trust-first group savings for every community and person on Celo.
             </p>
           </div>
 

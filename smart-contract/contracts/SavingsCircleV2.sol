@@ -168,10 +168,7 @@ contract SavingsCircleV2 is Ownable, ReentrancyGuard {
         state = CycleState.OPEN;
     }
 
-    /*//////////////////////////////////////////////////////////////
-                              VIEWS
-    //////////////////////////////////////////////////////////////*/
-    function membersCount() external view returns (uint256) {
+    function checkMembersCount() external view returns (uint256) {
         return members.length;
     }
 

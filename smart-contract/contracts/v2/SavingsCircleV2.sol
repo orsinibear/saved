@@ -3,7 +3,9 @@ pragma solidity ^0.8.28;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {
+    ReentrancyGuard
+} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title SavingsCircleV2
 /// @notice Modular, cycle-based Ajo/Esusu contract with identity gating
@@ -172,7 +174,10 @@ contract SavingsCircleV2 is Ownable, ReentrancyGuard {
         return members.length;
     }
 
-    function hasPaid(address member, uint256 cycle) external view returns (bool) {
+    function hasPaid(
+        address member,
+        uint256 cycle
+    ) external view returns (bool) {
         return cycles[cycle].paid[member];
     }
 }

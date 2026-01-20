@@ -28,7 +28,7 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
 - Smart Contracts: Solidity (0.8+), Hardhat, OpenZeppelin.
 - Network: Celo Alfajores (testnet) → Celo Mainnet after pilot.
 - Tokens: cUSD (IERC20).
-- Optional Automation: Anyone can call `triggerPayout()`; add relayer/keeper later.
+- Optional Automation: Anyone can call `triggerPayout()`; add relayer/keeper later..
 
 ## Milestones & Timeline (Aggressive)
 - M0 (Day 0–1): Repo scaffold, CI, environment wiring.

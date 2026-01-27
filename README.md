@@ -76,7 +76,7 @@ A decentralized savings circle platform built on Celo using Base, integrated wit
     - [x] `updateReputation(member, delta)` internal hooks
     - [x] `getStatus()` view for UI
   - Events:
-    - [x] `Joined(member)`, `Contributed(member, cycle, amount)`, `Payout(to, cycle, amount)`, `Missed(member, cycle)`, `ReputationUpdated(member, delta, score)`
+    - [x] `Joined(member)`, `Contributed(member, cycle, amount)`, `Payout(to, cycle, amount)`, `Missed(member, cycle)`, `ReputationUpdated(member, delta, .)`
 - [x] Security & Constraints:
   - [x] Reentrancy guards, caps (max members), safe math by default (0.8+), onlyCreator modifiers, pause if needed
 - [ x] Tests:

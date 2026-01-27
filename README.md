@@ -38,7 +38,7 @@ A decentralized savings circle platform built on Celo using Base, integrated wit
 - M4 (Day 13–14): QA, polish, pilot onboarding, docs.
 - v1.1+: Relayer-based nudges/automation, invitations, PWA optimizations, social recovery.
 
-## Detailed TODOs
+## Detailed TODO
 
 ### Repo, Tooling, CI/CD
 - [ ] Initialize monorepo structure:

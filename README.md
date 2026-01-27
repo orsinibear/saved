@@ -79,7 +79,7 @@ A decentralized savings circle platform built on Celo using Base, integrated wit
     - [x] `Joined(member)`, `Contributed(member, cycle, amount)`, `Payout(to, cycle, amount)`, `Missed(member, cycle)`, `ReputationUpdated(member, delta, score)`
 - [x] Security & Constraints:
   - [x] Reentrancy guards, caps (max members), safe math by default (0.8+), onlyCreator modifiers, pause if needed
-- [ ] Tests:
+- [ x] Tests:
   - [ ] Factory creation
   - [ ] Joining rules and gating
   - [ ] Contribution flows (happy path + missed)

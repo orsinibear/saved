@@ -1,4 +1,4 @@
-# Self-Enabled On-Chain Savings Circle (Ajo/Esusu)
+# Self-Enabled On-Chain Savings Circle (Ajo)
 
 A decentralized savings circle platform built on Celo using Base, integrated with Self Protocol for identity, attestations, and social recovery. This README captures the execution plan, detailed TODOs, milestones, and delivery criteria for the MVP and near-term roadmap.
 

@@ -1,6 +1,6 @@
-# Self-Enabled On-Chain Savings Circle (Ajo/Esusu)
+# Self-Enabled On-Chain Savings Circle (Ajo)
 
-A decentralized savings circle platform built on Celo using cUSD, integrated with Self Protocol for identity, attestations, and social recovery. This README captures the execution plan, detailed TODOs, milestones, and delivery criteria for the MVP and near-term roadmap.
+A decentralized savings circle platform built on Celo using Base, integrated with Self Protocol for identity, attestations, and social recovery. This README captures the execution plan, detailed TODOs, milestones, and delivery criteria for the MVP and near-term roadmap.
 
 ## Vision & Goals
 - Enable trusted Ajo/Esusu savings circles with verifiable identity and transparent, automated payouts.
@@ -28,7 +28,7 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
 - Smart Contracts: Solidity (0.8+), Hardhat, OpenZeppelin.
 - Network: Celo Alfajores (testnet) → Celo Mainnet after pilot.
 - Tokens: cUSD (IERC20).
-- Optional Automation: Anyone can call `triggerPayout()`; add relayer/keeper later.
+- Optional Automation: Anyone can call `triggerPayout()`; add relayer/keeper later..
 
 ## Milestones & Timeline (Aggressive)
 - M0 (Day 0–1): Repo scaffold, CI, environment wiring.
@@ -38,7 +38,7 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
 - M4 (Day 13–14): QA, polish, pilot onboarding, docs.
 - v1.1+: Relayer-based nudges/automation, invitations, PWA optimizations, social recovery.
 
-## Detailed TODOs
+## Detailed TODO
 
 ### Repo, Tooling, CI/CD
 - [ ] Initialize monorepo structure:
@@ -76,10 +76,10 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
     - [x] `updateReputation(member, delta)` internal hooks
     - [x] `getStatus()` view for UI
   - Events:
-    - [x] `Joined(member)`, `Contributed(member, cycle, amount)`, `Payout(to, cycle, amount)`, `Missed(member, cycle)`, `ReputationUpdated(member, delta, score)`
+    - [x] `Joined(member)`, `Contributed(member, cycle, amount)`, `Payout(to, cycle, amount)`, `Missed(member, cycle)`, `ReputationUpdated(member, delta, .)`
 - [x] Security & Constraints:
   - [x] Reentrancy guards, caps (max members), safe math by default (0.8+), onlyCreator modifiers, pause if needed
-- [ ] Tests:
+- [ x] Tests:
   - [ ] Factory creation
   - [ ] Joining rules and gating
   - [ ] Contribution flows (happy path + missed)
@@ -147,7 +147,7 @@ A decentralized savings circle platform built on Celo using cUSD, integrated wit
   - Self Protocol endpoints/keys
 
 ## Definition of Done (DoD)
-- Contracts deployed to Alfajores with tests >80% coverage on core flows.
+- Contracts deployed to celo with tests >80% coverage on core flows.
 - Web app deployed (preview + prod), usable on mobile.
 - Create/join/contribute/payout working end-to-end.
 - SelfID linking in-app; membership gating based on Self attestation.

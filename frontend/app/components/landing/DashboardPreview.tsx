@@ -12,7 +12,6 @@ export function DashboardPreview() {
         description="Monitor contribution streaks, payout queues, and on-chain reputation in real time."
       />
       
-      {/* Grid layout for larger screens, stack for mobile */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
         {circles.map((circle, index) => (
           <motion.div
